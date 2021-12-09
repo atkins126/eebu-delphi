@@ -189,6 +189,7 @@ begin
     4: cbx_situacao.ItemIndex:= 3;
   end;
 
+  lbe_referencia.text:= OrdemServico.Referencia.ToString;
   lbe_pessoa.Text:= OrdemServico.Pessoa.Nome;
   lbe_user.Text:= OrdemServico.User.Nome;
   dtp_Solicitado.Date:= OrdemServico.Solicitado;

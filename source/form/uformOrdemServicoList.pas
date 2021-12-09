@@ -9,7 +9,8 @@ uses
   FireDAC.Stan.Intf, FireDAC.Stan.Option, FireDAC.Stan.Param,
   FireDAC.Stan.Error, FireDAC.DatS, FireDAC.Phys.Intf, FireDAC.DApt.Intf,
   Vcl.Menus, FireDAC.Comp.DataSet, FireDAC.Comp.Client, System.Actions,
-  Vcl.ActnList, Pessoa, User, System.DateUtils, ACBrBase, ACBrDFe, ACBrNFe;
+  Vcl.ActnList, Pessoa, User, System.DateUtils, ACBrBase, ACBrDFe, ACBrNFe,
+  Vcl.Imaging.pngimage;
 
 type
   TformOrdemServicoList = class(TformBase)
@@ -59,7 +60,14 @@ type
     btn_venda_update: TButton;
     fdmt_osSOLICITADO: TDateField;
     fdmt_osOBSERVACAO: TStringField;
+    img_StatusAndamento: TImage;
+    img_StatusConcluido: TImage;
+    img_StatusServicoPendente: TImage;
+    img_StatusCancelado: TImage;
     fdmt_osSITUACAO: TStringField;
+    fdmt_osSTATUS: TStringField;
+    cbx_situacao: TComboBox;
+    lb_situacao: TLabel;
     procedure tmr_focusTimer(Sender: TObject);
     procedure FormCreate(Sender: TObject);
     procedure FormDestroy(Sender: TObject);
@@ -78,12 +86,14 @@ type
     procedure act_updateExecute(Sender: TObject);
     procedure act_destroyExecute(Sender: TObject);
     procedure act_imprimirExecute(Sender: TObject);
+    procedure ds_osDataChange(Sender: TObject; Field: TField);
   private
     { Private declarations }
     Pessoa: TPessoa;
     User: TUser;
     procedure list(pDtInicial,
                    pDtFinal: TDate;
+                   pSituacao,
                    pPessoaId,
                    pUserId,
                    pSearch: string);
@@ -194,6 +204,22 @@ begin
   TDBGrid(Sender).DefaultDrawDataCell(Rect, TDBGrid(Sender).columns[datacol].Field, State);
 end;
 
+procedure TformOrdemServicoList.ds_osDataChange(Sender: TObject; Field: TField);
+begin
+  inherited;
+  img_StatusConcluido.Visible:= False;
+  img_StatusAndamento.Visible:= False;
+  img_StatusServicoPendente.Visible:= False;
+  img_StatusCancelado.Visible:= False;
+
+  case StrToIntDef(fdmt_osSITUACAO.AsString, 1) of
+    1: img_StatusServicoPendente.Visible:= true;
+    2: img_StatusAndamento.Visible:= True;
+    3: img_StatusCancelado.Visible:= True;
+    4: img_StatusConcluido.Visible:= True;
+  end;
+end;
+
 procedure TformOrdemServicoList.edb_pessoaLeftButtonClick(Sender: TObject);
 var
   v_form: TformPessoaList;
@@ -262,11 +288,7 @@ begin
   User:= nil;
   dtp_start.Date:= StartOfTheMonth(Now);
   dtp_end.Date:= Now;
-  list(dtp_start.Date,
-       dtp_end.Date,
-       '',
-       '',
-       '');
+  listRefresh;
 end;
 
 procedure TformOrdemServicoList.FormDestroy(Sender: TObject);
@@ -292,12 +314,13 @@ begin
   end;
 end;
 
-procedure TformOrdemServicoList.list(pDtInicial, pDtFinal: TDate; pPessoaId,
+procedure TformOrdemServicoList.list(pDtInicial, pDtFinal: TDate; pSituacao, pPessoaId,
   pUserId, pSearch: string);
 begin
-  TOrdemServico.list(1,
+  TOrdemServico.list(
               pDtInicial,
               pDtFinal,
+              pSituacao,
               pPessoaId,
               pUserId,
               pSearch,
@@ -306,7 +329,7 @@ end;
 
 procedure TformOrdemServicoList.listRefresh;
 var
-  userId, pessoaId: String;
+  situacao, userId, pessoaId: String;
 begin
    if Assigned(User) then
     userId:= User.Id
@@ -317,7 +340,14 @@ begin
   else
     pessoaId:= '';
 
-  list(dtp_start.Date, dtp_end.Date, pessoaId,userId,Trim(lbe_search.Text));
+  case cbx_situacao.ItemIndex of
+    0: situacao:= '1';
+    1: situacao:= '2';
+    2: situacao:= '3';
+    3: situacao:= '4';
+  end;
+
+  list(dtp_start.Date, dtp_end.Date, situacao, pessoaId,userId,Trim(lbe_search.Text));
 end;
 
 procedure TformOrdemServicoList.tmr_focusTimer(Sender: TObject);

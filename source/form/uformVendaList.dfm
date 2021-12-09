@@ -552,8 +552,6 @@ inherited formVendaList: TformVendaList
           Font.Name = 'Calibri'
           Font.Style = [fsBold]
           ParentFont = False
-          ExplicitLeft = 2
-          ExplicitTop = 5
           ExplicitWidth = 5
         end
         object dbg_itens: TDBGrid

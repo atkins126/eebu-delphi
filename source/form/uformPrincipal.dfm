@@ -3751,7 +3751,7 @@ inherited formPrincipal: TformPrincipal
         GroupIndex = 0
       end
       object RibbonGroup5: TRibbonGroup
-        Left = 258
+        Left = 249
         Top = 3
         Width = 123
         Height = 86
@@ -3760,7 +3760,7 @@ inherited formPrincipal: TformPrincipal
         GroupIndex = 2
       end
       object RibbonGroup2: TRibbonGroup
-        Left = 387
+        Left = 374
         Top = 3
         Width = 162
         Height = 86
@@ -3786,7 +3786,7 @@ inherited formPrincipal: TformPrincipal
         GroupIndex = 0
       end
       object RibbonGroup4: TRibbonGroup
-        Left = 250
+        Left = 236
         Top = 3
         Width = 340
         Height = 86
@@ -3795,7 +3795,7 @@ inherited formPrincipal: TformPrincipal
         GroupIndex = 1
       end
       object RibbonGroup7: TRibbonGroup
-        Left = 613
+        Left = 578
         Top = 3
         Width = 114
         Height = 86
@@ -4171,6 +4171,9 @@ inherited formPrincipal: TformPrincipal
         Color = clWhite
         ParentBackground = False
         TabOrder = 1
+        DesignSize = (
+          275
+          159)
         object Label7: TLabel
           Left = 16
           Top = 19
@@ -4184,7 +4187,7 @@ inherited formPrincipal: TformPrincipal
           Font.Style = []
           ParentFont = False
         end
-        object Label8: TLabel
+        object lbl_RecebimentoRestante: TLabel
           Left = 62
           Top = 97
           Width = 153
@@ -4197,11 +4200,14 @@ inherited formPrincipal: TformPrincipal
           Font.Style = []
           ParentFont = False
         end
-        object Label9: TLabel
+        object lbl_RecebimentoHojeText: TLabel
           Left = 46
-          Top = 72
+          Top = 69
           Width = 184
           Height = 19
+          Alignment = taCenter
+          Anchors = []
+          AutoSize = False
           Caption = 'N'#227'o h'#225' recebimentos hoje.'
           Font.Charset = ANSI_CHARSET
           Font.Color = clWindowText
@@ -4209,6 +4215,21 @@ inherited formPrincipal: TformPrincipal
           Font.Name = 'Calibri'
           Font.Style = [fsBold]
           ParentFont = False
+          Visible = False
+        end
+        object lbl_RecebimentoHoje: TLabel
+          Left = 102
+          Top = 65
+          Width = 66
+          Height = 26
+          Caption = 'R$ 0,00'
+          Font.Charset = ANSI_CHARSET
+          Font.Color = 5742374
+          Font.Height = -21
+          Font.Name = 'Calibri'
+          Font.Style = [fsBold]
+          ParentFont = False
+          Visible = False
         end
       end
       object Panel4: TPanel

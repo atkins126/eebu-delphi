@@ -196,7 +196,7 @@ uses
   uformConsultaCPF in 'form\uformConsultaCPF.pas' {formConsultaCPF},
   uformConsultaCNPJ in 'form\uformConsultaCNPJ.pas' {formConsultaCNPJ},
   uformOrdemServicoCreateEdit in 'form\uformOrdemServicoCreateEdit.pas' {formOrdemServicoCreateEdit},
-  Dashboard in 'model\Dashboard.pas';
+  ViewDashboardFinan in 'model\ViewDashboardFinan.pas';
 
 {$R *.res}
 

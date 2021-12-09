@@ -53,8 +53,6 @@ inherited formOrdemServicoCreateEdit: TformOrdemServicoCreateEdit
       ParentColor = True
       ParentFont = False
       TabOrder = 0
-      ExplicitLeft = 16
-      ExplicitTop = -37
     end
     object pnl_pessoa_footer: TPanel
       Left = 21
@@ -131,7 +129,6 @@ inherited formOrdemServicoCreateEdit: TformOrdemServicoCreateEdit
       ParentColor = True
       ParentFont = False
       TabOrder = 2
-      ExplicitTop = 87
       object bvl_2: TBevel
         Left = 0
         Top = 554
@@ -200,7 +197,6 @@ inherited formOrdemServicoCreateEdit: TformOrdemServicoCreateEdit
         ParentFont = False
         ReadOnly = True
         TabOrder = 1
-        Text = ''
         OnKeyDown = lbe_userKeyDown
       end
       object lbe_pessoa: TLabeledEdit
@@ -220,7 +216,6 @@ inherited formOrdemServicoCreateEdit: TformOrdemServicoCreateEdit
         ParentFont = False
         ReadOnly = True
         TabOrder = 0
-        Text = ''
         OnKeyDown = lbe_pessoaKeyDown
       end
       object lbe_referencia: TLabeledEdit
@@ -240,7 +235,6 @@ inherited formOrdemServicoCreateEdit: TformOrdemServicoCreateEdit
         ParentFont = False
         ReadOnly = True
         TabOrder = 2
-        Text = ''
       end
       object dtp_Solicitado: TDateTimePicker
         Left = 823
@@ -286,10 +280,10 @@ inherited formOrdemServicoCreateEdit: TformOrdemServicoCreateEdit
         ParentFont = False
         TabOrder = 6
         Items.Strings = (
-          'Aguardando atendimento'
-          'Em Atendimento'
-          'Cancelado'
-          'Finalizado')
+          'SERVI'#199'O PENDENTE'
+          'EM ANDAMENTO'
+          'CANCELADO'
+          'CONCLUIDO')
       end
     end
   end

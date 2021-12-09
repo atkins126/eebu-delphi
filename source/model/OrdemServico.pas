@@ -27,21 +27,22 @@ type
     function store(): Boolean; override;
     function update(): Boolean; override;
   public
+    destructor Destroy; override;
     constructor Create();
     function save(): Boolean;
     function delete(): Boolean;
     function validate(vtype: integer = 0): Boolean;
     class function getNameSituacao(situacao: string): string;
     class function find(id: string): TOrdemServico;
-    class function list(pSituacao: Integer;
-                        pDtInicial,
+    class function list(pDtInicial,
                         pDtFinal: TDate;
+                        pSituacao,
                         pPessoaId,
                         pUserId,
                         pSearch: string): TObjectList<TOrdemServico>; overload;
-    class procedure list(pSituacao: Integer;
-                         pDtInicial,
+    class procedure list(pDtInicial,
                          pDtFinal: TDate;
+                         pSituacao,
                          pPessoaId,
                          pUserId,
                          pSearch: string; pDt: TFDMemTable); overload;
@@ -109,6 +110,13 @@ begin
   end;
 end;
 
+destructor TOrdemServico.Destroy;
+begin
+  if Assigned(Self.FPESSOA) then FreeAndNil(Self.FPESSOA);
+  if Assigned(Self.FUSER) then FreeAndNil(Self.FUSER);
+  inherited;
+end;
+
 class function TOrdemServico.find(id: string): TOrdemServico;
 const
   FSql: string = 'SELECT * FROM ORDEM_SERVICO WHERE (ID = :ID)';
@@ -135,6 +143,7 @@ begin
         Result.Competencia:= FDQuery.FieldByName('COMPETENCIA').AsDateTime;
         Result.Solicitado:= FDQuery.FieldByName('SOLICITADO').AsDateTime;
         Result.Observacao:= FDQuery.FieldByName('OBSERVACAO').AsString;
+        Result.Situacao:= FDQuery.FieldByName('SITUACAO').AsString;
         Result.CreatedAt:= FDQuery.FieldByName('CREATED_AT').AsDateTime;
         Result.UpdatedAt:= FDQuery.FieldByName('UPDATED_AT').AsDateTime;
         Result.Synchronized:= FDQuery.FieldByName('SYNCHRONIZED').AsString;
@@ -150,10 +159,10 @@ end;
 class function TOrdemServico.getNameSituacao(situacao: string): string;
 begin
   case StrToIntDef(situacao, 1) of
-    1: Result:= 'AGUARDANDO ATENDIMENTO';
-    2: Result:= 'EM ATENDIMENTO';
+    1: Result:= 'SERVIÇO PENDENTE';
+    2: Result:= 'EM ANDAMENTO';
     3: Result:= 'CANCELADO';
-    4: Result:= 'FINALIZADO';
+    4: Result:= 'CONCLUIDO';
   end;
 end;
 
@@ -244,20 +253,8 @@ begin
           Print.Add('H|' + 'DATA       : ' + FormatDateTime('dd/mm/yyyy',vOs.Solicitado));
           Print.Add('H|' + StringOfChar('-', 88));
           Print.Add('H|' + 'ATENDENTE  : ' + vOs.User.Nome);
+          Print.Add('H|' + 'DESCRICAO  : ' + UpperCase(vOs.Observacao));
           Print.Add('H|' + StringOfChar('-', 88));
-          Print.Add('H|' + THelper.StrEsquerda(THelper.StrEsquerda('|', 1) +
-          THelper.StrCentro('DESCRIÇÃO DO CLIENTE', 42) + THelper.StrDireita('|', 1), 44) +
-          THelper.StrDireita(THelper.StrCentro('ATENDIMENTO', 43) + THelper.StrDireita('|', 1), 44));
-          Print.Add('H|' + THelper.StrEsquerda(THelper.StrEsquerda('|', 1) +
-          THelper.StrCentro('', 42) + THelper.StrDireita('|', 1), 44) +
-          THelper.StrDireita(THelper.StrCentro('', 43) + THelper.StrDireita('|', 1), 44));
-          Print.Add('H|' + THelper.StrCentro(THelper.StrEsquerda('|', 1) +
-          THelper.StrCentro(UpperCase(vOs.Observacao), 42) + THelper.StrDireita('|', 1), 44) +
-           THelper.StrDireita(THelper.StrCentro('', 43) + THelper.StrDireita('|', 1), 44));
-          Print.Add('H|' + THelper.StrEsquerda(THelper.StrEsquerda('|', 1) +
-          THelper.StrCentro('', 42) + THelper.StrDireita('|', 1), 44) +
-          THelper.StrDireita(THelper.StrCentro('', 43) + THelper.StrDireita('|', 1), 44));
-          Print.Add('F|' + StringOfChar('-',88));
           Print.Add('F|' + THelper.StrDireita('WWW.EEBU.COM.BR', 88));
           Print.Add('F|' + THelper.StrDireita('COTRIGUAÇU - MT (66) 98430-7974 / 98466-0179', 88));
           for I:= 0 to 3 do
@@ -285,8 +282,8 @@ begin
   end;
 end;
 
-class procedure TOrdemServico.list(pSituacao: Integer; pDtInicial,
-  pDtFinal: TDate; pPessoaId, pUserId, pSearch: string; pDt: TFDMemTable);
+class procedure TOrdemServico.list(pDtInicial,
+  pDtFinal: TDate; pSituacao, pPessoaId, pUserId, pSearch: string; pDt: TFDMemTable);
 var
   vList: TObjectList<TOrdemServico>;
   I: Integer;
@@ -294,9 +291,9 @@ begin
   pDt.Open();
   pDt.DisableControls;
   pDt.EmptyDataSet;
-  vList:= Self.list(pSituacao,
-                    pDtInicial,
+  vList:= Self.list(pDtInicial,
                     pDtFinal,
+                    pSituacao,
                     pPessoaId,
                     pUserId,
                     pSearch);
@@ -310,7 +307,8 @@ begin
       pDt.FieldByName('COMPETENCIA').AsDateTime:= vList.Items[I].Competencia;
       pDt.FieldByName('SOLICITADO').AsDateTime:= vList.Items[I].Solicitado;
       pDt.FieldByName('OBSERVACAO').AsString:= vList.Items[I].Observacao;
-      pDt.FieldByName('SITUACAO').AsString:= getNameSituacao(vList.Items[I].Situacao);
+      pDt.FieldByName('SITUACAO').AsString:= vList.Items[I].Situacao;
+      pDt.FieldByName('STATUS').AsString:= getNameSituacao(vList.Items[I].Situacao);
       pDt.FieldByName('PESSOA').AsString:= vList.Items[I].Pessoa.Nome;
       pDt.FieldByName('VENDEDOR').AsString:= vList.Items[I].User.Nome;
       pDt.Post;
@@ -321,8 +319,8 @@ begin
   pDt.EnableControls;
 end;
 
-class function TOrdemServico.list(pSituacao: Integer; pDtInicial,
-  pDtFinal: TDate; pPessoaId, pUserId,
+class function TOrdemServico.list(pDtInicial,
+  pDtFinal: TDate; pSituacao, pPessoaId, pUserId,
   pSearch: string): TObjectList<TOrdemServico>;
 var
   FSql: string;
@@ -335,8 +333,8 @@ begin
       vReferencia:= StrToIntDef(pSearch, 0);
       FSql:= 'SELECT V.ID FROM ORDEM_SERVICO V ' +
       'WHERE (V.EMPRESA_ID = :EMPRESA_ID) AND (V.DELETED_AT IS NULL) ' +
-      'AND (V.SOLICITADO BETWEEN :DTINICIAL AND :DTFINAL) ';
-      //'AND (V.SITUACAO = :SITUACAO) ';
+      'AND (V.SOLICITADO BETWEEN :DTINICIAL AND :DTFINAL) ' +
+      'AND (V.SITUACAO = :SITUACAO) ';
       if (pPessoaId <> '') then
         FSql:= FSql + 'AND (V.PESSOA_ID = :PESSOA_ID) ';
       if (pUserId <> '') then
@@ -348,7 +346,7 @@ begin
       FDQuery.Params.ParamByName('EMPRESA_ID').DataType:= ftString;
       FDQuery.Params.ParamByName('DTINICIAL').DataType:= ftDate;
       FDQuery.Params.ParamByName('DTFINAL').DataType:= ftDate;
-      //FDQuery.Params.ParamByName('SITUACAO').DataType:= ftString;
+      FDQuery.Params.ParamByName('SITUACAO').DataType:= ftString;
       if (pPessoaId <> '') then
         FDQuery.Params.ParamByName('PESSOA_ID').DataType:= ftString;
       if (pUserId <> '') then
@@ -359,7 +357,7 @@ begin
       FDQuery.Params.ParamByName('EMPRESA_ID').AsString:= TAuthService.getAuthenticatedEmpresaId;
       FDQuery.Params.ParamByName('DTINICIAL').AsDate:= pDtInicial;
       FDQuery.Params.ParamByName('DTFINAL').AsDate:= pDtFinal;
-      //FDQuery.Params.ParamByName('SITUACAO').AsString:= pSituacao;
+      FDQuery.Params.ParamByName('SITUACAO').AsString:= pSituacao;
       if (pPessoaId <> '') then
         FDQuery.Params.ParamByName('PESSOA_ID').AsString:= pPessoaId;
       if (pUserId <> '') then

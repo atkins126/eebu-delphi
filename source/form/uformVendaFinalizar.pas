@@ -77,6 +77,7 @@ type
     procedure Organizar();
     procedure Resumir();
     function ReceberCt(pModalidade: string; pValor: Currency): Boolean;
+    procedure gerarNFe();
   public
     { Public declarations }
   end;
@@ -88,7 +89,8 @@ implementation
 
 uses
   AuthService, Helper, CustomEditHelper, VendaRecebimento, udmRepository,
-  uformVendaParcelamento, uformCartaoParcelamento;
+  uformVendaParcelamento, uformCartaoParcelamento, Nfe, System.AnsiStrings,
+  uformNfeList;
 
 {$R *.dfm}
 
@@ -278,6 +280,9 @@ begin
         end;
       end;
       TAuthService.VendaId:= TAuthService.Venda.Id;
+
+      if THelper.Mensagem('Deseja gerar NFe?', 1) then
+        gerarNFe();
       Close;
     end;
   except on e: Exception do
@@ -570,6 +575,42 @@ procedure TformVendaFinalizar.FormShow(Sender: TObject);
 begin
   Resumir();
   act_recebiemnto_clickExecute(pnl_dinheiro);
+end;
+
+procedure TformVendaFinalizar.gerarNFe;
+var
+  vNfe: TNFe;
+  vForm: TformNfeList;
+begin
+  TAuthService.NfeId:= TNfe.vendaToNfe(TAuthService.VendaId, TAuthService.getAuthenticatedConfig.NfeOperacaoFiscalId);
+
+  vNfe:= TNfe.find(TAuthService.NfeId);
+  if not Assigned(vNfe) then
+    Exit();
+
+  try
+    try
+      if (AnsiIndexStr(vNfe.Modelo, ['01','1B','04','55', '65']) in[0,1,2]) then
+        THelper.Mensagem('Nota fiscal gerada com sucesso.')
+      else
+      begin
+        if THelper.Mensagem('Nota fiscal gerada com sucesso. Deseja enviar?', 1) then
+          vNfe.enviar();
+      end;
+    except on e: Exception do
+      begin
+        THelper.Mensagem(e.Message);
+        try
+          vForm:= TformNfeList.Create(nil);
+          vForm.ShowModal;
+        finally
+          FreeAndNil(vForm);
+        end;
+      end;
+    end;
+  finally
+    if Assigned(vNfe) then FreeAndNil(vNfe);
+  end;
 end;
 
 procedure TformVendaFinalizar.Organizar;

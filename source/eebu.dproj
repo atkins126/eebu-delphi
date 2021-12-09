@@ -563,7 +563,7 @@
             <Form>formOrdemServicoCreateEdit</Form>
             <FormType>dfm</FormType>
         </DCCReference>
-        <DCCReference Include="model\Dashboard.pas"/>
+        <DCCReference Include="model\ViewDashboardFinan.pas"/>
         <BuildConfiguration Include="Release">
             <Key>Cfg_2</Key>
             <CfgParent>Base</CfgParent>

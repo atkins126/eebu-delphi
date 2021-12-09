@@ -583,9 +583,11 @@ begin
     end;
     TAuthService.NfeId:= TNfe.lvendasToNfe(vVendaId, vVendasOk, Id);
   end;
+
   vNfe:= TNfe.find(TAuthService.NfeId);
   if not Assigned(vNfe) then
     Exit();
+
   try
     try
       if (AnsiIndexStr(vNfe.Modelo, ['01','1B','04','55', '65']) in[0,1,2]) then

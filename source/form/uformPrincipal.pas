@@ -84,8 +84,8 @@ type
     Panel2: TPanel;
     Panel3: TPanel;
     Label7: TLabel;
-    Label8: TLabel;
-    Label9: TLabel;
+    lbl_RecebimentoRestante: TLabel;
+    lbl_RecebimentoHojeText: TLabel;
     Panel4: TPanel;
     Label10: TLabel;
     Label11: TLabel;
@@ -98,6 +98,7 @@ type
     Label16: TLabel;
     Label17: TLabel;
     Label18: TLabel;
+    lbl_RecebimentoHoje: TLabel;
     procedure act_vendas_orcamentosExecute(Sender: TObject);
     procedure act_pagamentosExecute(Sender: TObject);
     procedure act_recebimentosExecute(Sender: TObject);
@@ -141,6 +142,7 @@ type
   private
     { Private declarations }
     procedure VerificarValidadeLicenca();
+    procedure DashboardFian();
   public
     { Public declarations }
   end;
@@ -160,7 +162,7 @@ uses
   uformInfadfiscoList, uformCompraList, uformEstoqueList, 
   uformNfeRecebidasList, Helper, Wt, uformBloqueio, uformNfeEmpresaList,
   uformSPEDList, uformCartaoList, uformNfeNumeroList, uformTerminalList,
-  uformTurnoList, uformOrdemServicoList;
+  uformTurnoList, uformOrdemServicoList, ViewDashboardFinan;
 {$R *.dfm}
 procedure TformPrincipal.act_cartoesExecute(Sender: TObject);
 var
@@ -545,6 +547,30 @@ begin
     FreeAndNil(formVendaList);
   end;
 end;
+procedure TformPrincipal.DashboardFian;
+var
+  DashFinan: TViewDashboardFinan;
+begin
+  try
+    DashFinan:= TViewDashboardFinan.find(TAuthService.getAuthenticatedEmpresaId);
+    if Assigned(DashFinan) then
+    begin
+      if DashFinan.RecebimentoHoje > 0 then
+      begin
+        lbl_RecebimentoHoje.Caption:= 'R$ ' + THelper.ExtendedToString(DashFinan.RecebimentoHoje);
+        lbl_RecebimentoHoje.Visible:= True;
+      end
+      else
+        lbl_RecebimentoHojeText.Visible:= false;
+
+      if DashFinan.RecebimentoRestante > 0 then
+        lbl_RecebimentoRestante.Caption:= 'Restante do mês: R$ ' + THelper.ExtendedToString(DashFinan.RecebimentoRestante);
+    end;
+  finally
+    FreeAndNil(DashFinan)
+  end;
+end;
+
 procedure TformPrincipal.FormCreate(Sender: TObject);
 begin
   inherited;
@@ -596,6 +622,7 @@ begin
   //VerificarValidadeLicenca();
   timer.Interval:= 3600000;
   timer.Enabled:= True;
+  DashboardFian;
 end;
 procedure TformPrincipal.VerificarValidadeLicenca;
 var
